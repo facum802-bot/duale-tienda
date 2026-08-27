@@ -2,9 +2,154 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>DUALÉ Indumentaria</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DUALÉ INDUMENTARIA — Official Store</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+  </style>
 </head>
-<body>
-  <h1>DUALÉ Indumentaria</h1>
+<body class="bg-white text-black antialiased">
+
+  <!-- HEADER ESTILO ZARA -->
+  <header class="fixed top-0 left-0 w-full bg-white/90 backdrop-blur-md z-40 border-b border-gray-100 px-6 py-4 flex justify-between items-center">
+    <div class="flex items-center gap-8">
+      <span class="text-2xl font-black tracking-widest uppercase">DUALÉ</span>
+      <nav class="hidden md:flex gap-6 text-xs uppercase tracking-widest font-medium">
+        <a href="#" class="hover:opacity-50">Nuevo Drop</a>
+        <a href="#" class="hover:opacity-50">Colección</a>
+        <a href="#" class="text-red-600 font-bold">Sale</a>
+      </nav>
+    </div>
+    <button onclick="toggleCarrito()" class="bg-black text-white px-5 py-2 text-xs uppercase tracking-widest font-bold rounded-full">
+      BAG (<span id="cart-count">0</span>)
+    </button>
+  </header>
+
+  <!-- PRODUCTO DESTACADO -->
+  <main class="pt-28 pb-16 px-6 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
+    <div>
+      <img src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&q=80" alt="Remera Oversize DUALÉ" class="w-full h-[550px] object-cover">
+    </div>
+
+    <div class="flex flex-col justify-center space-y-6">
+      <div>
+        <span class="text-xs uppercase tracking-widest text-gray-400 font-bold">SKU: DUL-001</span>
+        <h1 class="text-3xl font-light uppercase tracking-wide mt-1">Remera Oversize Heavy Cotton</h1>
+        <p class="text-xl font-medium mt-2">$35.000 ARS</p>
+      </div>
+
+      <p class="text-sm text-gray-600">Confeccionada en algodón premium de alto gramaje. Corte holgado con caída perfecta.</p>
+
+      <div>
+        <label class="text-xs uppercase tracking-widest font-bold block mb-2">Talle:</label>
+        <div class="flex gap-2" id="talle-selector">
+          <button onclick="seleccionarTalle('S')" class="talle-btn border border-gray-300 px-4 py-2 text-xs font-bold hover:border-black">S</button>
+          <button onclick="seleccionarTalle('M')" class="talle-btn border border-gray-300 px-4 py-2 text-xs font-bold hover:border-black">M</button>
+          <button onclick="seleccionarTalle('L')" class="talle-btn border border-gray-300 px-4 py-2 text-xs font-bold hover:border-black">L</button>
+          <button onclick="seleccionarTalle('XL')" class="talle-btn border border-gray-300 px-4 py-2 text-xs font-bold hover:border-black">XL</button>
+        </div>
+      </div>
+
+      <button onclick="agregarAlCarrito()" class="w-full bg-black text-white py-4 text-xs uppercase tracking-widest font-bold hover:bg-neutral-800 transition">
+        Agregar al Carrito
+      </button>
+    </div>
+  </main>
+
+  <!-- DRAWER DEL CARRITO -->
+  <div id="cart-drawer" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex justify-end">
+    <div class="w-full max-w-md bg-white h-full p-6 flex flex-col justify-between">
+      <div>
+        <div class="flex justify-between items-center border-b pb-4">
+          <h2 class="text-xs uppercase tracking-widest font-bold">Tu Carrito DUALÉ</h2>
+          <button onclick="toggleCarrito()" class="text-xl font-light">&times;</button>
+        </div>
+        <div id="cart-items" class="mt-6 space-y-4">
+          <p class="text-xs text-gray-400 uppercase tracking-widest text-center py-8">El carrito está vacío</p>
+        </div>
+      </div>
+
+      <div border-t pt-4 space-y-4>
+        <div class="flex justify-between text-sm uppercase font-bold tracking-widest">
+          <span>Total:</span>
+          <span id="cart-total">$0</span>
+        </div>
+        <button onclick="finalizarCompraWhatsApp()" class="w-full bg-emerald-600 text-white py-4 text-xs uppercase tracking-widest font-bold hover:bg-emerald-700 transition">
+          Finalizar Compra por WhatsApp
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // CONFIGURACIÓN DE TU NÚMERO DE WHATSAPP (Cámbialo por el tuyo)
+    const NUMERO_WHATSAPP = "5491112345678"; 
+
+    let talleElegido = "M";
+    let carrito = [];
+
+    function seleccionarTalle(talle) {
+      talleElegido = talle;
+      document.querySelectorAll('.talle-btn').forEach(btn => btn.classList.remove('border-black', 'bg-black', 'text-white'));
+      event.target.classList.add('border-black', 'bg-black', 'text-white');
+    }
+
+    function agregarAlCarrito() {
+      carrito.push({
+        nombre: "Remera Oversize Heavy Cotton",
+        talle: talleElegido,
+        precio: 35000
+      });
+      actualizarCarrito();
+      toggleCarrito();
+    }
+
+    function toggleCarrito() {
+      document.getElementById('cart-drawer').classList.toggle('hidden');
+    }
+
+    function actualizarCarrito() {
+      document.getElementById('cart-count').innerText = carrito.length;
+      const container = document.getElementById('cart-items');
+      
+      if(carrito.length === 0) {
+        container.innerHTML = '<p class="text-xs text-gray-400 uppercase tracking-widest text-center py-8">El carrito está vacío</p>';
+        document.getElementById('cart-total').innerText = '$0';
+        return;
+      }
+
+      let total = 0;
+      container.innerHTML = '';
+      carrito.forEach((item) => {
+        total += item.precio;
+        container.innerHTML += `
+          <div class="flex justify-between items-center border-b pb-2">
+            <div>
+              <p class="text-xs font-bold uppercase">${item.nombre}</p>
+              <p class="text-[10px] text-gray-500 uppercase">Talle: ${item.talle}</p>
+            </div>
+            <p class="text-xs font-bold">$${item.precio.toLocaleString('es-AR')}</p>
+          </div>
+        `;
+      });
+      document.getElementById('cart-total').innerText = '$' + total.toLocaleString('es-AR');
+    }
+
+    function finalizarCompraWhatsApp() {
+      if(carrito.length === 0) return alert("Agrega al menos un producto al carrito");
+      
+      let mensaje = "Hola *DUALÉ INDUMENTARIA*! Quiero realizar el siguiente pedido:\n\n";
+      let total = 0;
+      carrito.forEach((item, index) => {
+        mensaje += `*${index + 1}. ${item.nombre}*\n  • Talle: ${item.talle}\n  • Precio: $${item.precio.toLocaleString('es-AR')}\n\n`;
+        total += item.precio;
+      });
+      mensaje += `💰 *TOTAL: $${total.toLocaleString('es-AR')}*\n\nQuedo a la espera para coordinar el pago y el envío.`;
+      
+      window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(mensaje)}`, '_blank');
+    }
+  </script>
 </body>
 </html>
